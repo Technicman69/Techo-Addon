@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "techo",
+	"version": "${version}",
+	"name": "Techo Addon",
+	"description": "Technicman's Origins Addon - a simple apoli addon providing origin datapackers with new power types that modify and replace sound events. New powers: `replace_sound_emission`",
+	"authors": [
+		"Technicman"
+	],
+	"contact": {
+		"sources": "https://github.com/Technicman69/Techo"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/techo/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.technicman.techo.Techo"
+		],
+		"client": [
+			"com.technicman.techo.TechoClient"
+		]
+	},
+	"mixins": [
+		"techo.mixins.json",
+		{
+			"config": "techo.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"apoli": ">=2.9.2+mc.1.20.x"
+	}
+}

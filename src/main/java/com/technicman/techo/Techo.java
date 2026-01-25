@@ -1,10 +1,8 @@
 package com.technicman.techo;
 
+import com.technicman.techo.action.EntityActions;
 import com.technicman.techo.power.Powers;
 import net.fabricmc.api.ModInitializer;
-
-import net.minecraft.data.server.loottable.LootTableProvider;
-import net.minecraft.loot.provider.nbt.LootNbtProviderType;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,7 @@ public class Techo implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 		Powers.register();
+		EntityActions.register();
 
 		LOGGER.info("Hello Fabric world!");
 	}

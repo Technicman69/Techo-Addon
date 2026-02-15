@@ -1,2 +1,3 @@
 # TODO
-- add weighted sounds
+
+- fix ordering of replace sound power

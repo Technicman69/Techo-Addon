@@ -16,7 +16,7 @@ public interface Weighted {
 
     static void validateWeight(int weight) {
         if (weight <= 0) {
-            throw new IllegalArgumentException("Expected weight to be greater than 0! (current value: " + weight + ")");
+            throw new IllegalArgumentException("Expected weight to be greater than 0 (current value: " + weight + ")");
         }
     }
 }

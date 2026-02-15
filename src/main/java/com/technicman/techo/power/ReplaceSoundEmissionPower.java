@@ -34,6 +34,7 @@ public class ReplaceSoundEmissionPower extends Power {
 
     private final Map<String, List<WeightedSound>> replacements;
     private final Map<String, Boolean> captureGroup;
+
     private final boolean replace;
     private final Consumer<Entity> entityAction;
     private final int priority;
@@ -56,6 +57,10 @@ public class ReplaceSoundEmissionPower extends Power {
             }
             captureGroup.put(key, contains$);
         }
+    }
+
+    public boolean doReplace() {
+        return replace;
     }
 
     public WeightedSound pickRandomFromKey(String key) {
@@ -99,7 +104,9 @@ public class ReplaceSoundEmissionPower extends Power {
     public static void tryReplace(Entity sourceEntity, PlayerEntity except, double x, double y, double z, SoundEvent sound, SoundCategory category, float volume, float pitch) {
         List<ReplaceSoundEmissionPower> replaceSoundEmissionPowers = PowerHolderComponent.getPowers(sourceEntity, ReplaceSoundEmissionPower.class)
                 .stream()
-                .sorted(Comparator.comparing(ReplaceSoundEmissionPower::getPriority).reversed())
+                .sorted(Comparator.comparing(ReplaceSoundEmissionPower::getPriority)
+                        .reversed()
+                        .thenComparing(ReplaceSoundEmissionPower::doReplace))
                 .toList();
         for (ReplaceSoundEmissionPower power : replaceSoundEmissionPowers) {
             //System.out.println("Try replace for power " + power.toString());

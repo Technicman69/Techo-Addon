@@ -8,6 +8,8 @@ public final class WeightedSound implements Weighted {
 
     public WeightedSound(String id, float volume, float pitch, int weight) {
         Weighted.validateWeight(weight);
+        if (pitch <= 0) throw new IllegalArgumentException("Expected pitch to be greater than 0 (current value: " + pitch + ")");
+        if (volume <= 0) throw new IllegalArgumentException("Expected volume to be greater than 0 (current value: " + volume + ")");
         this.id = id;
         this.volume = volume;
         this.pitch = pitch;

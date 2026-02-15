@@ -2,8 +2,6 @@ package com.technicman.techo.mixin.client;
 
 import com.technicman.techo.power.ReplaceSoundEmissionPower;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.sound.SoundSystem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.sound.SoundCategory;

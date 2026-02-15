@@ -6,6 +6,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.technicman.techo.util.WeightedSound;
 import io.github.apace100.calio.ClassUtil;
+import io.github.apace100.calio.data.DataException;
 import io.github.apace100.calio.data.SerializableData;
 import io.github.apace100.calio.data.SerializableDataType;
 import io.github.apace100.calio.data.SerializableDataTypes;
@@ -60,20 +61,26 @@ public class TechoDataTypes {
             JsonObject jo = jsonElement.getAsJsonObject();
             Map<String, List<WeightedSound>> map = new LinkedHashMap<>();
             for (String s : jo.keySet()) {
-                JsonElement ele = jo.get(s);
-                JsonPrimitive jp;
-                if (!s.contains(":")) {
-                    s = "minecraft:" + s;
-                }
-                if (ele.isJsonPrimitive() && (jp = ele.getAsJsonPrimitive()).isString()) {
-                    String id = jp.getAsString();
-                    map.put(s, List.of(new WeightedSound(id)));
-                } else if (ele.isJsonObject()) {
-                    map.put(s, List.of(WEIGHTED_SOUND.read(ele)));
-                } else if (ele.isJsonArray()) {
-                    map.put(s, WEIGHTED_SOUNDS.read(ele));
-                } else {
-                    throw new JsonParseException("at key \"" + s + "\": expected a string, and object or an array");
+                try {
+                    JsonElement ele = jo.get(s);
+                    JsonPrimitive jp;
+                    if (!s.contains(":")) {
+                        s = "minecraft:" + s;
+                    }
+                    if (ele.isJsonPrimitive() && (jp = ele.getAsJsonPrimitive()).isString()) {
+                        String id = jp.getAsString();
+                        map.put(s, List.of(new WeightedSound(id)));
+                    } else if (ele.isJsonObject()) {
+                        map.put(s, List.of(WEIGHTED_SOUND.read(ele)));
+                    } else if (ele.isJsonArray()) {
+                        map.put(s, WEIGHTED_SOUNDS.read(ele));
+                    } else {
+                        throw new JsonParseException("expected a string, and object or an array");
+                    }
+                } catch(DataException e) {
+                    throw e.prepend('"'+s+'"');
+                } catch(Exception e) {
+                    throw new DataException(DataException.Phase.READING, s, e);
                 }
             }
             return map;

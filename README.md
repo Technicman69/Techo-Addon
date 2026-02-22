@@ -107,6 +107,35 @@ This example will replace power holder's death and hurt sounds with the correspo
 | 1.0.0   | Added the power                                                                                              |
 | 1.1.0   | Added new fields: `replace`, `entity_action`, `priority`. Values in `sounds` now accepts **Weighted Sounds** |
 
+## Replace Sound Reception
+
+Replaces a sound recepted by power holder with a different sound.
+
+Type ID: `techo:replace_sound_reception`
+
+### Fields
+| Field           | Type          | Default    | Description                                                                                                                                                                                                                                                                                                                     |
+|-----------------|---------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `sounds`        | Object        |            | An object with `"key": "value"` pairs that determine which sound (`"key"`) will be replaced with a new sound (`"value"`). The "value" can be either a **String**, a **Weighted Sound** or an **Array** of **Weighted Sounds** Supports regex matching (with referencing captured groups in replacement) and resourcepack sounds |
+| `replace`       | Boolean       | `true`     | Whether the correctly matched sound should replace the old one, or play along with it. If `false`, both old and new sound will be played                                                                                                                                                                                        |
+| `entity_action` | Entity Action | *optional* | If specified, this action will be executed on the player upon successfully replacing (or matching) sound                                                                                                                                                                                                                        |
+| `priority`      | Integer       | `0`        | Determines the application priority of the power. If several powers match the sound only the highest `priority` with `replace` set to `true` will replace sound and powers with higher `priority` but with `replace` set to `false` will play their sound along                                                                 |
+### Examples
+```json
+{
+    "type": "techo:replace_sound_reception",
+    "sounds": {
+        "(?!.*:ui\\.).*": "empty"
+    }
+}
+```
+This example will mute everything the power holder hears, except for UI sounds (ex. it won't mute `minecraft:ui.button.click`)
+
+### History
+| Version | Change                                                                                                       |
+|---------|--------------------------------------------------------------------------------------------------------------|
+| 1.2.0   | Added the power                                                                                              |
+
 
 # Entity Actions Types
 

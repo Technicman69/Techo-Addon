@@ -2,6 +2,14 @@ Primary goal of this mod was to implement a better substitute for apugli's `cust
 
 I plan to make some of it a part of Apoli for Origins 1.20.1 later on :>
 
+**Features**
+1. Power Types
+  - Replace Sound Emission (`techo:replace_sound_emission`)
+2. Entity Action Types
+  - Play Sound (`techo:play_sound`) - adds new fields to original `apoli:play_sound` entity action type.
+3. A way to pass Resource power values as uniforms to post-processing shaders (via **Resource Value Provider** data type)
+
+---
 # Power Types
 
 ## Replace Sound Emission
@@ -52,6 +60,47 @@ This example will replace `entity.player.burp` and `entity.generic.eat` sound ev
 ```
 This example will replace any stepping sound coming from the power holder with a breaking sound used by the same block that was stepped upon (unless that block is a wool).
 
+```json
+{
+    "type": "techo:replace_sound_emission",
+    "sounds": {
+        "(.*)": {
+            "id": "$1",
+            "pitch": 0.5
+        }
+    }
+}
+```
+This example will make all the sounds emitted by power holder have pitch set to 0.5 making them sound slow and low.
+
+```json
+{
+    "type": "techo:replace_sound_emission",
+    "sounds": {
+        "entity.player.(hurt|death)": [
+            {
+                "id": "minecraft:entity.axolotl.$1",
+                "volume": 2,
+                "pitch": 0.5,
+                "weight": 1
+            },
+            {
+                "id": "minecraft:entity.wither.$1",
+                "volume": 2,
+                "pitch": 0.5,
+                "weight": 1
+            }
+        ]
+    },
+    "entity_action": {
+        "type": "apoli:execute_command",
+        "command": "say bleh XP"
+    },
+    "priority": 1
+}
+```
+This example will replace power holder's death and hurt sounds with the corresponding sound from axolotl or wither (50% chance for either). The result sounds will be slowed 50% (`"pitch": 0.5`) and will be heard in distance of `32` blocks (`"volume": 2`, so `2 * 16 = 32 blocks`)
+
 ### History
 | Version | Change                                                                                                       |
 |---------|--------------------------------------------------------------------------------------------------------------|
@@ -81,6 +130,8 @@ The value of the volume field is used to multiply the base distance of the sound
 | `pitch`         | Float      | `1.0`                    | The pitch of the sound.                                                                                                                                                                                                                                                     |
 | `follow_entity` | Boolean    | `false`                  | Whether the sound should be heard coming from entity's position when it moves.                                                                                                                                                                                              |
 | `global`        | Boolean    | value of `follow_entity` | Whether all players in the dimension should register this sound as playing even if outside of its range. If `false` player won't hear it even if they come in the range. <br/>**Note**: This does **not** make all the players hear the sound just as loud.                 |
+| `internal`      | Boolean    | `false`                  | Whether only the entity that plays this sound should hear it.                                                                                                                                                                                                               |
+
 
 ### Examples
 
@@ -102,10 +153,19 @@ This example will play the pigstep music disc that will be heard by all players 
 ```
 This example will play the sound of creating end portal all around the dimension with all the players hearing it just as loud (`1e9001` yields special float value: `Infinity`).
 
+```
+"entity_action": {
+    "type": "techo:play_sound",
+    "sound": "ambient.cave",
+    "internal": true
+}
+```
+This example plays cave ambient only for this entity.
 ### History
-| Version | Change                                                                                                       |
-|---------|--------------------------------------------------------------------------------------------------------------|
-| 1.0.0   | Added the action                                                                                             |
+| Version | Change                      |
+|---------|-----------------------------|
+| 1.0.0   | Added the action            |
+| 1.2.0   | Added new field: `internal` |
 
 # Data Types
 
@@ -145,6 +205,71 @@ This example will return either `entity.villager.yes` or `entity.villager.no` wi
 | Version | Change              |
 |---------|---------------------|
 | 1.1.0   | Added the data type |
+
+## Resource Value Provider
+
+Provides a scaled value from a **Resource** power (in order to convert an integer resource value to a fraction float).
+
+Can be passed instead of any float value of a uniform vector/matrix in a post shader
+
+### Fields
+
+| Field      | Type       | Default | Description                                                                                                                     |
+|------------|------------|---------|---------------------------------------------------------------------------------------------------------------------------------|
+| `resource` | Identifier |         | The ID of the resource power from which the uniform value will be set.                                                          |
+| `scale`    | Float      | `0.01`  | Can be defined instead of `min` and `max` pair. The value by which the one provided by resource will be multiplied.             |
+| `min`      | Float      |         | The value to which the `min` boundary of the resource should be mapped. If defined with `max`, will be used instead of `scale`. |
+| `max`      | Float      |         | The value to which the `max` boundary of the resource should be mapped. If defined with `min`, will be used instead of `scale`. |
+
+### Examples
+`assets/example/shaders/post/chromatic_aberration.json`
+
+```json
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "deconverge",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        {
+          "name": "ConvergeX",
+          "values": [ 0.0,  0.0,  0.0 ]
+        },
+        {
+          "name": "ConvergeY",
+          "values": [  0.0, 0.0,  0.0 ]
+        },
+        {
+          "name": "RadialConvergeX",
+          "values": [  {"resource": "example:intensity", "min": 0.9, "max": 1.0},  {"resource": "example:intensity", "min": 1.02, "max": 1.0},  {"resource": "example:intensity", "min": 1.02, "max": 1.0} ]
+        },
+        {
+          "name": "RadialConvergeY",
+          "values": [  {"resource": "example:intensity", "min": 0.9, "max": 1.0},  {"resource": "example:intensity", "min": 1.02, "max": 1.0},  {"resource": "example:intensity", "min": 1.02, "max": 1.0} ]
+        }
+      ]
+    },
+    {
+      "name": "blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}
+
+```
+This example will let the `example:intensity` resource power control the intensity of a Chromatic Aberration shader
+
+### History
+| Version | Change              |
+|---------|---------------------|
+| 1.2.0   | Added the data type |
+
+---
 
 # Credits
 - Chris The Big! - for inspiring me to do this mod in the first place (he needed this functionality in one of his datapacks)

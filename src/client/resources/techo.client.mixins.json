@@ -3,6 +3,8 @@
   "package": "com.technicman.techo.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "PostEffectPassMixin",
+    "PostEffectProcessorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

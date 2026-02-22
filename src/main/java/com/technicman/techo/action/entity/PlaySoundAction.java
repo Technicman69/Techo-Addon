@@ -6,6 +6,7 @@ import io.github.apace100.calio.data.SerializableData;
 import io.github.apace100.calio.data.SerializableDataType;
 import io.github.apace100.calio.data.SerializableDataTypes;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 
@@ -14,10 +15,11 @@ public class PlaySoundAction {
     public static void action(SerializableData.Instance data, Entity entity) {
         SoundEvent sound = data.get("global") ? SoundEvent.of(data.get("sound"), Float.POSITIVE_INFINITY) : SoundEvent.of(data.get("sound"));
         SoundCategory category = data.isPresent("category") ? data.get("category") : entity.getSoundCategory();
+        PlayerEntity except = entity instanceof PlayerEntity playerEntity && data.getBoolean("internal") ? playerEntity : null;
         if (data.get("follow_entity")) {
-            entity.getWorld().playSoundFromEntity(null, entity, sound, category, data.getFloat("volume"), data.getFloat("pitch"));
+            entity.getWorld().playSoundFromEntity(except, entity, sound, category, data.getFloat("volume"), data.getFloat("pitch"));
         } else {
-            entity.getWorld().playSound(null, entity.getBlockPos(), sound, category, data.getFloat("volume"), data.getFloat("pitch"));
+            entity.getWorld().playSound(except, entity.getBlockPos(), sound, category, data.getFloat("volume"), data.getFloat("pitch"));
         }
     }
 
@@ -30,7 +32,8 @@ public class PlaySoundAction {
                         .add("volume", SerializableDataTypes.FLOAT, 1.0f)
                         .add("pitch", SerializableDataTypes.FLOAT, 1.0f)
                         .add("follow_entity", SerializableDataTypes.BOOLEAN, false)
-                        .addFunctionedDefault("global", SerializableDataTypes.BOOLEAN, (data) -> data.get("follow_entity")),
+                        .addFunctionedDefault("global", SerializableDataTypes.BOOLEAN, (data) -> data.get("follow_entity"))
+                        .add("internal", SerializableDataTypes.BOOLEAN, false),
                 PlaySoundAction::action
         );
     }
